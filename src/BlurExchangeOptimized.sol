@@ -76,7 +76,7 @@ contract BlurExchangeOpimized is IBlurExchange, ReentrancyGuarded, EIP712, Ownab
     mapping(bytes32 => bool) public cancelledOrFilled;
     mapping(address => uint256) public nonces;
 
-    uint256 public isInternal = 1;
+    uint256 public isInternal;
     uint256 public remainingETH = 0;
 
     /* Governance Variables */
@@ -114,7 +114,7 @@ contract BlurExchangeOpimized is IBlurExchange, ReentrancyGuarded, EIP712, Ownab
     ) external initializer {
         __Ownable_init();
         isOpen = 1;
-
+        isInternal = 1;
         DOMAIN_SEPARATOR = _hashDomain(
             EIP712Domain({name: NAME, version: VERSION, chainId: block.chainid, verifyingContract: address(this)})
         );
