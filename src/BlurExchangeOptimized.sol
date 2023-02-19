@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "../lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
 
-import "./lib/ReentrancyGuarded.sol";
+import "./lib/ReentrancyGuardedOptimized.sol";
 import "./lib/EIP712.sol";
 import "./lib/MerkleVerifier.sol";
 import "./interfaces/IBlurExchange.sol";
@@ -19,7 +19,13 @@ import {Side, SignatureVersion, AssetType, Fee, Order, Input, Execution} from ".
  * @title BlurExchange
  * @dev Core Blur exchange contract
  */
-contract BlurExchangeOpimized is IBlurExchange, ReentrancyGuarded, EIP712, OwnableUpgradeable, UUPSUpgradeable {
+contract BlurExchangeOptimized is
+    IBlurExchange,
+    ReentrancyGuardedOptimized,
+    EIP712,
+    OwnableUpgradeable,
+    UUPSUpgradeable
+{
     /* Auth */
     uint256 public isOpen;
 
@@ -114,7 +120,7 @@ contract BlurExchangeOpimized is IBlurExchange, ReentrancyGuarded, EIP712, Ownab
     ) external initializer {
         __Ownable_init();
         isOpen = 1;
-        isInternal = 1;
+
         DOMAIN_SEPARATOR = _hashDomain(
             EIP712Domain({name: NAME, version: VERSION, chainId: block.chainid, verifyingContract: address(this)})
         );
@@ -123,6 +129,14 @@ contract BlurExchangeOpimized is IBlurExchange, ReentrancyGuarded, EIP712, Ownab
         policyManager = _policyManager;
         oracle = _oracle;
         blockRange = _blockRange;
+    }
+
+    // used to be called once to initialize storage variables
+    function initializeV2() external {
+        require(isInternal == 0, "Initialized internal");
+        require(reentrancyLock == 0, "Initialized lock");
+        isInternal = 1;
+        reentrancyLock = 1;
     }
 
     /* External Functions */

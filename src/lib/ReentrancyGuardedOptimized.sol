@@ -6,7 +6,8 @@ pragma solidity 0.8.17;
  * @dev Protections for reentrancy attacks
  */
 contract ReentrancyGuardedOptimized {
-    uint256 private reentrancyLock = 1;
+    // internal to be able to be set by the parent class
+    uint256 internal reentrancyLock = 1;
 
     /* Prevent a contract function from being reentrant-called. */
     modifier reentrancyGuard() {
